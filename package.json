@@ -1,0 +1,25 @@
+{
+	"name": "to-do-list",
+	"version": "1.0.0",
+	"description": "A To Do List app built with HTML, CSS and Javascript",
+	"private": "true",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "webpack"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/daniellima0/to-do-list.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/daniellima0/to-do-list/issues"
+	},
+	"homepage": "https://github.com/daniellima0/to-do-list#readme",
+	"devDependencies": {
+		"webpack": "^5.75.0",
+		"webpack-cli": "^5.0.1"
+	}
+}
