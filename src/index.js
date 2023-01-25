@@ -78,7 +78,6 @@ const storage = (() => {
 
 const domHandler = (() => {
 	const renderPage = () => {
-		deleteContentOfPage();
 		loadPageBasicStructure();
 		loadLists();
 		loadListContent(0);
@@ -98,9 +97,24 @@ const domHandler = (() => {
         `;
 	};
 
-	const deleteContentOfPage = () => {
-		const element = document.getElementsByTagName('body')[0];
-		element.textContent = '';
+	const removeAllActiveStates = () => {
+		const listsItemElements =
+			document.getElementsByClassName('lists__item');
+
+		for (let i = 0; i < listsItemElements.length; i++) {
+			listsItemElements[i].className = 'lists__item';
+		}
+	};
+
+	const addActiveStateTo = (element) => {
+		element.className = 'lists__item lists__item--active';
+	};
+
+	const deleteListContent = () => {
+		const title = document.getElementsByClassName('list-content__title')[0];
+		title.textContent = '';
+		const tasks = document.getElementsByClassName('list-content__tasks')[0];
+		tasks.textContent = '';
 	};
 
 	const loadLists = () => {
@@ -110,6 +124,7 @@ const domHandler = (() => {
 		storage.getAllLists().forEach((list) => {
 			const listElement = document.createElement('div');
 			listElement.className = 'lists__item';
+			listElement.dataset.id = list.id;
 
 			const listIcon = document.createElement('img');
 			if (list.name == 'Inbox') {
@@ -125,12 +140,25 @@ const domHandler = (() => {
 			listText.textContent = list.name;
 			listText.className = 'lists__text';
 
+			listElement.addEventListener('click', () => {
+				removeAllActiveStates();
+				addActiveStateTo(listElement);
+				deleteListContent();
+				loadListContent(listElement.dataset.id);
+			});
+
 			listElement.append(listIcon, listText);
 			listsItemsElement.append(listElement);
 		});
 	};
 
 	const loadListContent = (listId) => {
+		const listContentTitleElement = document.getElementsByClassName(
+			'list-content__title'
+		)[0];
+
+		listContentTitleElement.textContent = storage.getListById(listId).name;
+
 		const listContentTasksElement = document.getElementsByClassName(
 			'list-content__tasks'
 		)[0];
@@ -149,7 +177,6 @@ const domHandler = (() => {
 				const taskText = document.createElement('p');
 				taskText.className = 'list-content__text';
 				taskText.textContent = task.title;
-				console.log(task);
 
 				newTaskElement.append(checkbox, taskText);
 				listContentTasksElement.append(newTaskElement);
@@ -161,9 +188,9 @@ const domHandler = (() => {
 	};
 })();
 
-domHandler.renderPage();
-
 storage.addList('List1');
+storage.getListById(1).addTask('bbbb');
 storage.addList('List2');
+storage.getListById(2).addTask('cccc');
 
 domHandler.renderPage();
