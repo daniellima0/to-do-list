@@ -183,14 +183,87 @@ const domHandler = (() => {
 			});
 	};
 
+	const addNewList = (listId) => {
+		const listsItemsElement =
+			document.getElementsByClassName('lists__items')[0];
+
+		storage.getAllLists().forEach((list) => {
+			console.log('list.id: ', list.id);
+			console.log('listId: ', listId);
+			if (list.id < listId) {
+				return;
+			}
+
+			const listElement = document.createElement('div');
+			listElement.className = 'lists__item';
+			listElement.dataset.id = list.id;
+
+			const listIcon = document.createElement('img');
+			if (list.name == 'Inbox') {
+				listIcon.src = inboxIconPath;
+				listIcon.className = 'lists__inbox-icon';
+				listElement.className = 'lists__item lists__item--active';
+			} else {
+				listIcon.src = listIconPath;
+				listIcon.className = 'lists__list-icon';
+			}
+
+			const listText = document.createElement('span');
+			listText.textContent = list.name;
+			listText.className = 'lists__text';
+
+			listElement.addEventListener('click', () => {
+				removeAllActiveStates();
+				addActiveStateTo(listElement);
+				deleteListContent();
+				loadListContent(listElement.dataset.id);
+			});
+
+			listElement.append(listIcon, listText);
+			listsItemsElement.append(listElement);
+		});
+	};
+
 	return {
 		renderPage,
+		addNewList,
 	};
 })();
 
-storage.addList('List1');
+storage.addList('Personal');
 storage.getListById(1).addTask('bbbb');
-storage.addList('List2');
+storage.getListById(1).addTask('bbbb');
+storage.getListById(1).addTask('bbbb');
+storage.addList('Work');
 storage.getListById(2).addTask('cccc');
 
 domHandler.renderPage();
+
+const listItemsElement = document.getElementsByClassName('lists__items')[0];
+const newListButton = document.getElementsByClassName('lists__button')[0];
+newListButton.addEventListener('click', () => {
+	newListButton.className += '--hidden';
+	const input = document.createElement('input');
+	input.className = 'lists__input';
+	input.addEventListener('keypress', (event) => {
+		if (event.key === 'Enter') {
+			const textEntered = input.value;
+			listItemsElement.removeChild(input);
+			storage.addList(textEntered);
+			const lastListId = storage.getAllLists().at(-1).id;
+			domHandler.addNewList(lastListId);
+			newListButton.className = 'lists__button';
+		}
+	});
+	listItemsElement.append(input);
+});
+
+/*Organizando objetos:
+- 
+
+*/
+
+//Antigos To dos
+//Todo: Add event listeners to new list and new task buttons
+//Todo: Put a line in the middle of a completed task
+//Todo: Implement API
