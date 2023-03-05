@@ -170,7 +170,18 @@ const domHandler = (() => {
 				taskText.className = 'list-content__text';
 				taskText.textContent = task.title;
 
-				newTaskElement.append(checkbox, taskText);
+				const date = document.createElement('div');
+				date.className = 'list-content__date';
+
+				const dateIcon = document.createElement('img');
+				date.className = 'list-content__date-icon';
+
+				const dateText = document.createElement('p');
+				date.className = 'list-content__date-text';
+
+				date.append(dateIcon, dateText);
+
+				newTaskElement.append(checkbox, taskText, date);
 				listContentTasksElement.append(newTaskElement);
 			});
 	};
@@ -234,7 +245,6 @@ const domHandler = (() => {
 					let activeElement = document.getElementsByClassName(
 						'lists__item lists__item--active'
 					)[0];
-					console.log(activeElement.dataset.id);
 
 					storage
 						.getListById(activeElement.dataset.id)
@@ -277,10 +287,5 @@ const domHandler = (() => {
 
 domHandler.loadPageInitialState();
 
-//New To dos
-//Todo: add eventlistener to all addTask buttons
-
-//Antigos To dos
-//Todo: Add event listeners to new list and new task buttons
 //Todo: Put a line in the middle of a completed task
 //Todo: Implement API
