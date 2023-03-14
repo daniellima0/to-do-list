@@ -1,264 +1,304 @@
-import './reset.css';
-import './index.css';
-import inboxIconPath from './assets/images/inbox.png';
-import listIconPath from './assets/images/circle.png';
+import "./reset.css";
+import "./index.css";
+import inboxIconPath from "./assets/images/inbox.png";
+import listIconPath from "./assets/images/circle.png";
 
-const createTask = (id, title, description, dueDate, priority, list) => {
-	return { id, title, description, dueDate, priority, list };
+const createTask = (
+    id,
+    title,
+    description,
+    dueDate,
+    priority,
+    list,
+    isChecked
+) => {
+    return { id, title, description, dueDate, priority, list, isChecked };
 };
 
 const createList = (id, name) => {
-	let tasks = [];
-	let taskId = 0;
+    let tasks = [];
+    let taskId = 0;
 
-	const addTask = (taskTitle) => {
-		let newTask = createTask(taskId, taskTitle);
-		tasks.push(newTask);
-		incrementTaskId();
-	};
+    const addTask = (taskTitle) => {
+        let newTask = createTask(taskId, taskTitle);
+        tasks.push(newTask);
+        incrementTaskId();
+    };
 
-	const removeTask = (selectedTask) => {
-		tasks.forEach((task) => {
-			if (task.id == selectedTask.id) {
-				tasks.splice(indexOf(selectedTask), 0);
-			}
-		});
-	};
+    const removeTask = (selectedTask) => {
+        tasks.forEach((task) => {
+            if (task.id == selectedTask.id) {
+                tasks.splice(indexOf(selectedTask), 0);
+            }
+        });
+    };
 
-	const getAllTasks = () => {
-		return tasks;
-	};
+    const getAllTasks = () => {
+        return tasks;
+    };
 
-	const incrementTaskId = () => {
-		taskId += 1;
-	};
+    const incrementTaskId = () => {
+        taskId += 1;
+    };
 
-	return { id, name, addTask, removeTask, getAllTasks };
+    return { id, name, addTask, removeTask, getAllTasks };
 };
 
 const storage = (() => {
-	let defaultList = createList(0, 'Inbox');
-	defaultList.addTask('aaaaa');
-	let lists = [defaultList];
-	let listId = 1;
+    let defaultList = createList(0, "Inbox");
+    defaultList.addTask("aaaaa");
+    let lists = [defaultList];
+    let listId = 1;
 
-	const addList = (name) => {
-		let newList = createList(listId, name);
-		lists.push(newList);
-		incrementListId();
-	};
+    const addList = (name) => {
+        let newList = createList(listId, name);
+        lists.push(newList);
+        incrementListId();
+    };
 
-	const removeList = (selectedList) => {
-		lists.forEach((list) => {
-			if (list.id == selectedList.id) {
-				lists.splice(indexOf(selectedList), 0);
-			}
-		});
-	};
+    const removeList = (selectedList) => {
+        lists.forEach((list) => {
+            if (list.id == selectedList.id) {
+                lists.splice(indexOf(selectedList), 0);
+            }
+        });
+    };
 
-	const getListById = (listId) => {
-		return lists[listId];
-	};
+    const getListById = (listId) => {
+        return lists[listId];
+    };
 
-	const getAllLists = () => {
-		return lists;
-	};
+    const getAllLists = () => {
+        return lists;
+    };
 
-	const incrementListId = () => {
-		listId += 1;
-	};
+    const incrementListId = () => {
+        listId += 1;
+    };
 
-	return {
-		addList,
-		removeList,
-		getListById,
-		getAllLists,
-	};
+    return {
+        addList,
+        removeList,
+        getListById,
+        getAllLists,
+    };
 })();
 
 const domHandler = (() => {
-	const deleteLists = () => {
-		const listsItemsElement =
-			document.getElementsByClassName('lists__items')[0];
+    const deleteLists = () => {
+        const listsItemsElement =
+            document.getElementsByClassName("lists__items")[0];
 
-		while (listsItemsElement.firstChild) {
-			listsItemsElement.removeChild(listsItemsElement.lastChild);
-		}
-	};
+        while (listsItemsElement.firstChild) {
+            listsItemsElement.removeChild(listsItemsElement.lastChild);
+        }
+    };
 
-	const removeAllActiveStates = () => {
-		const listsItemElements =
-			document.getElementsByClassName('lists__item');
+    const removeAllActiveStates = () => {
+        const listsItemElements =
+            document.getElementsByClassName("lists__item");
 
-		for (let i = 0; i < listsItemElements.length; i++) {
-			listsItemElements[i].className = 'lists__item';
-		}
-	};
+        for (let i = 0; i < listsItemElements.length; i++) {
+            listsItemElements[i].className = "lists__item";
+        }
+    };
 
-	const addActiveStateTo = (element) => {
-		element.className = 'lists__item lists__item--active';
-	};
+    const addActiveStateTo = (element) => {
+        element.className = "lists__item lists__item--active";
+    };
 
-	const deleteListContent = () => {
-		const title = document.getElementsByClassName('list-content__title')[0];
-		title.textContent = '';
-		const tasks = document.getElementsByClassName('list-content__tasks')[0];
-		tasks.textContent = '';
-	};
+    const deleteListContent = () => {
+        const title = document.getElementsByClassName("list-content__title")[0];
+        title.textContent = "";
+        const tasks = document.getElementsByClassName("list-content__tasks")[0];
+        tasks.textContent = "";
+    };
 
-	const addListButtonEventListener = () => {
-		const listsItemsElement =
-			document.getElementsByClassName('lists__items')[0];
+    const addListButtonEventListener = () => {
+        const listsItemsElement =
+            document.getElementsByClassName("lists__items")[0];
 
-		const newListButton =
-			document.getElementsByClassName('lists__button')[0];
+        const newListButton =
+            document.getElementsByClassName("lists__button")[0];
 
-		newListButton.addEventListener('click', () => {
-			newListButton.className += '--hidden';
-			const listInput = document.createElement('input');
-			listInput.className = 'lists__input';
-			listInput.addEventListener('keypress', (event) => {
-				if (event.key === 'Enter') {
-					const textEntered = listInput.value;
-					listsItemsElement.removeChild(listInput);
-					storage.addList(textEntered);
-					reloadLists();
-					newListButton.className = 'lists__button';
-				}
-			});
-			listsItemsElement.append(listInput);
-		});
-	};
+        newListButton.addEventListener("click", () => {
+            newListButton.className += "--hidden";
+            const listInput = document.createElement("input");
+            listInput.className = "lists__input";
+            listInput.addEventListener("keypress", (event) => {
+                if (event.key === "Enter") {
+                    const textEntered = listInput.value;
+                    listsItemsElement.removeChild(listInput);
+                    storage.addList(textEntered);
+                    reloadLists();
+                    newListButton.className = "lists__button";
+                }
+            });
+            listsItemsElement.append(listInput);
+        });
+    };
 
-	const deleteTasks = () => {
-		const listContentTasksElement = document.getElementsByClassName(
-			'list-content__tasks'
-		)[0];
+    const deleteTasks = () => {
+        const listContentTasksElement = document.getElementsByClassName(
+            "list-content__tasks"
+        )[0];
 
-		while (listContentTasksElement.firstChild) {
-			listContentTasksElement.removeChild(
-				listContentTasksElement.lastChild
-			);
-		}
-	};
+        while (listContentTasksElement.firstChild) {
+            listContentTasksElement.removeChild(
+                listContentTasksElement.lastChild
+            );
+        }
+    };
 
-	const reloadListContent = (listId) => {
-		deleteTasks();
+    const addCheckboxEventListener = (listId, taskId) => {
+        console.log("listId:", listId);
+        console.log("taskId:", taskId);
 
-		const listContentTitleElement = document.getElementsByClassName(
-			'list-content__title'
-		)[0];
+        const listContentTaskElement = document.querySelector(
+            `[data-task-id="${taskId}"]`
+        );
 
-		listContentTitleElement.textContent = storage.getListById(listId).name;
+        console.log("listContentTaskElement:", listContentTaskElement);
 
-		const listContentTasksElement = document.getElementsByClassName(
-			'list-content__tasks'
-		)[0];
+        // const checkbox =
+        //     listContentTaskElement.getElementsByTagName("input")[0];
 
-		storage
-			.getListById(listId)
-			.getAllTasks()
-			.forEach((task) => {
-				const newTaskElement = document.createElement('div');
-				newTaskElement.className = 'list-content__task';
+        // const taskText = listContentTaskElement.getElementsByTagName("p")[0];
 
-				const checkbox = document.createElement('input');
-				checkbox.className = 'list-content__checkbox';
-				checkbox.type = 'checkbox';
+        // checkbox.addEventListener("click", () => {
+        //     if (storage.getAllLists()[listId].getAllTasks()[taskId].isChecked) {
+        //         storage.getAllLists()[listId].getAllTasks()[
+        //             taskId
+        //         ].isChecked = false;
+        //         taskText.style.textDecoration = "none";
+        //     } else {
+        //         storage.getAllLists()[listId].getAllTasks()[
+        //             taskId
+        //         ].isChecked = true;
+        //         taskText.style.textDecoration = "line-through";
+        //     }
+        // });
+    };
 
-				const taskText = document.createElement('p');
-				taskText.className = 'list-content__text';
-				taskText.textContent = task.title;
+    const reloadListContent = (listId) => {
+        deleteTasks();
 
-				const date = document.createElement('div');
-				date.className = 'list-content__date';
+        const listContentTitleElement = document.getElementsByClassName(
+            "list-content__title"
+        )[0];
 
-				const dateIcon = document.createElement('img');
-				date.className = 'list-content__date-icon';
+        listContentTitleElement.textContent = storage.getListById(listId).name;
 
-				const dateText = document.createElement('p');
-				date.className = 'list-content__date-text';
+        const listContentTasksElement = document.getElementsByClassName(
+            "list-content__tasks"
+        )[0];
 
-				date.append(dateIcon, dateText);
+        storage
+            .getListById(listId)
+            .getAllTasks()
+            .forEach((task) => {
+                const newTaskElement = document.createElement("div");
+                newTaskElement.className = "list-content__task";
+                newTaskElement.dataset.taskId = task.id;
 
-				newTaskElement.append(checkbox, taskText, date);
-				listContentTasksElement.append(newTaskElement);
-			});
-	};
+                const checkbox = document.createElement("input");
+                checkbox.className = "list-content__checkbox";
+                checkbox.type = "checkbox";
+                addCheckboxEventListener(listId, 0); //change this parameter to task.id
 
-	const reloadLists = () => {
-		deleteLists();
+                const taskText = document.createElement("p");
+                taskText.className = "list-content__text";
+                taskText.textContent = task.title;
 
-		const listsItemsElement =
-			document.getElementsByClassName('lists__items')[0];
+                const date = document.createElement("div");
+                date.className = "list-content__date";
 
-		storage.getAllLists().forEach((list) => {
-			const listElement = document.createElement('div');
-			listElement.className = 'lists__item';
-			listElement.dataset.id = list.id;
+                const dateIcon = document.createElement("img");
+                date.className = "list-content__date-icon";
 
-			const listIcon = document.createElement('img');
-			if (list.name == 'Inbox') {
-				listIcon.src = inboxIconPath;
-				listIcon.className = 'lists__inbox-icon';
-				listElement.className = 'lists__item lists__item--active';
-			} else {
-				listIcon.src = listIconPath;
-				listIcon.className = 'lists__list-icon';
-			}
+                const dateText = document.createElement("p");
+                date.className = "list-content__date-text";
 
-			const listText = document.createElement('span');
-			listText.textContent = list.name;
-			listText.className = 'lists__text';
+                date.append(dateIcon, dateText);
 
-			listElement.addEventListener('click', () => {
-				removeAllActiveStates();
-				addActiveStateTo(listElement);
-				deleteListContent();
-				reloadListContent(listElement.dataset.id);
-			});
+                newTaskElement.append(checkbox, taskText, date);
+                listContentTasksElement.append(newTaskElement);
+            });
+    };
 
-			listElement.append(listIcon, listText);
-			listsItemsElement.append(listElement);
-		});
-	};
+    const reloadLists = () => {
+        deleteLists();
 
-	const addTaskButtonEventListener = () => {
-		const listContentTasksElement = document.getElementsByClassName(
-			'list-content__tasks'
-		)[0];
+        const listsItemsElement =
+            document.getElementsByClassName("lists__items")[0];
 
-		const newTaskButton = document.getElementsByClassName(
-			'list-content__button'
-		)[0];
+        storage.getAllLists().forEach((list) => {
+            const listElement = document.createElement("div");
+            listElement.className = "lists__item";
+            listElement.dataset.id = list.id;
 
-		newTaskButton.addEventListener('click', () => {
-			newTaskButton.className += '--hidden';
-			const taskInput = document.createElement('input');
-			taskInput.className = 'list-content__input';
-			taskInput.addEventListener('keypress', (event) => {
-				if (event.key === 'Enter') {
-					const textEntered = taskInput.value;
-					listContentTasksElement.removeChild(taskInput);
+            const listIcon = document.createElement("img");
+            if (list.name == "Inbox") {
+                listIcon.src = inboxIconPath;
+                listIcon.className = "lists__inbox-icon";
+                listElement.className = "lists__item lists__item--active";
+            } else {
+                listIcon.src = listIconPath;
+                listIcon.className = "lists__list-icon";
+            }
 
-					//descobrindo qual elemento tá ativo no momento
-					let activeElement = document.getElementsByClassName(
-						'lists__item lists__item--active'
-					)[0];
+            const listText = document.createElement("span");
+            listText.textContent = list.name;
+            listText.className = "lists__text";
 
-					storage
-						.getListById(activeElement.dataset.id)
-						.addTask(textEntered);
-					reloadListContent(activeElement.dataset.id);
-					newTaskButton.className = 'list-content__button';
-				}
-			});
-			listContentTasksElement.append(taskInput);
-		});
-	};
+            listElement.addEventListener("click", () => {
+                removeAllActiveStates();
+                addActiveStateTo(listElement);
+                deleteListContent();
+                reloadListContent(listElement.dataset.id);
+            });
 
-	const loadBasicStructure = () => {
-		document.body.innerHTML = `
+            listElement.append(listIcon, listText);
+            listsItemsElement.append(listElement);
+        });
+    };
+
+    const addTaskButtonEventListener = () => {
+        const listContentTasksElement = document.getElementsByClassName(
+            "list-content__tasks"
+        )[0];
+
+        const newTaskButton = document.getElementsByClassName(
+            "list-content__button"
+        )[0];
+
+        newTaskButton.addEventListener("click", () => {
+            newTaskButton.className += "--hidden";
+            const taskInput = document.createElement("input");
+            taskInput.className = "list-content__input";
+            taskInput.addEventListener("keypress", (event) => {
+                if (event.key === "Enter") {
+                    const textEntered = taskInput.value;
+                    listContentTasksElement.removeChild(taskInput);
+
+                    //descobrindo qual elemento tá ativo no momento
+                    let activeElement = document.getElementsByClassName(
+                        "lists__item lists__item--active"
+                    )[0];
+
+                    storage
+                        .getListById(activeElement.dataset.id)
+                        .addTask(textEntered);
+                    reloadListContent(activeElement.dataset.id);
+                    newTaskButton.className = "list-content__button";
+                }
+            });
+            listContentTasksElement.append(taskInput);
+        });
+    };
+
+    const loadBasicStructure = () => {
+        document.body.innerHTML = `
 			<div class="lists">
 				<div class="lists__items"></div>
 				<button class="lists__button">+ New List</button>
@@ -270,19 +310,19 @@ const domHandler = (() => {
 			</div>
         `;
 
-		addListButtonEventListener();
-		addTaskButtonEventListener();
-	};
+        addListButtonEventListener();
+        addTaskButtonEventListener();
+    };
 
-	const loadPageInitialState = () => {
-		loadBasicStructure();
-		reloadLists();
-		reloadListContent(0);
-	};
+    const loadPageInitialState = () => {
+        loadBasicStructure();
+        reloadLists();
+        reloadListContent(0);
+    };
 
-	return {
-		loadPageInitialState,
-	};
+    return {
+        loadPageInitialState,
+    };
 })();
 
 domHandler.loadPageInitialState();
