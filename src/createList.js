@@ -13,7 +13,7 @@ const createList = (id, name) => {
             currentList
         );
 
-        if (!currentList.hasOwn("tasks")) { //? Why I can't use .hasOwn on the currentList if it's not null
+        if (!currentList.hasOwnProperty("tasks")) {
             currentList.tasks = [newTask];
         } else {
             currentList.tasks.push(newTask);
