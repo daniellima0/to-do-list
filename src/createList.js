@@ -6,18 +6,9 @@ const createList = (id, name) => {
 
     const addTask = (taskTitle) => {
         let newTask = createTask(taskId, taskTitle);
-        console.log("createList.js - newTask", newTask);
         let currentList = JSON.parse(localStorage.getItem(id));
-        console.log(
-            "createList.js - currentList just fetched from the localStorage",
-            currentList
-        );
 
-        if (!currentList.hasOwnProperty("tasks")) {
-            currentList.tasks = [newTask];
-        } else {
-            currentList.tasks.push(newTask);
-        }
+        tasks.push(newTask);
 
         localStorage.setItem(id, JSON.stringify(currentList));
 

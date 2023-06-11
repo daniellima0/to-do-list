@@ -6,9 +6,8 @@ const storage = (() => {
 
     const addDefaultList = () => {
         let defaultList = createList(0, "Inbox");
-        console.log("storage.js - defaultList", defaultList);
         localStorage.setItem(0, JSON.stringify(defaultList));
-        defaultList.addTask("aaaaa");
+        defaultList.addTask("bbbbbbb");
         lists.push(defaultList);
         incrementListId();
     };
