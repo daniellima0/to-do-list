@@ -606,18 +606,9 @@ const createList = (id, name) => {
 
     const addTask = (taskTitle) => {
         let newTask = (0,_createTask__WEBPACK_IMPORTED_MODULE_0__["default"])(taskId, taskTitle);
-        console.log("createList.js - newTask", newTask);
         let currentList = JSON.parse(localStorage.getItem(id));
-        console.log(
-            "createList.js - currentList just fetched from the localStorage",
-            currentList
-        );
 
-        if (!currentList.hasOwnProperty("tasks")) {
-            currentList.tasks = [newTask];
-        } else {
-            currentList.tasks.push(newTask);
-        }
+        tasks.push(newTask);
 
         localStorage.setItem(id, JSON.stringify(currentList));
 
@@ -949,9 +940,8 @@ const storage = (() => {
 
     const addDefaultList = () => {
         let defaultList = (0,_createList__WEBPACK_IMPORTED_MODULE_0__["default"])(0, "Inbox");
-        console.log("storage.js - defaultList", defaultList);
         localStorage.setItem(0, JSON.stringify(defaultList));
-        defaultList.addTask("aaaaa");
+        defaultList.addTask("bbbbbbb");
         lists.push(defaultList);
         incrementListId();
     };
