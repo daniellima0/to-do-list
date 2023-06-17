@@ -48,7 +48,7 @@ const domHandler = (() => {
                     const textEntered = listInput.value;
                     listsItemsElement.removeChild(listInput);
                     storage.addList(textEntered);
-                    reloadLists();
+                    loadLists();
                     newListButton.className = "lists__button";
                 }
             });
@@ -93,7 +93,7 @@ const domHandler = (() => {
         });
     };
 
-    const reloadListContent = (listId) => {
+    const loadListContent = (listId) => {
         deleteTasks();
 
         const listContentTitleElement = document.getElementsByClassName(
@@ -145,7 +145,7 @@ const domHandler = (() => {
             });
     };
 
-    const reloadLists = () => {
+    const loadLists = () => {
         deleteLists();
 
         const listsItemsElement =
@@ -204,11 +204,10 @@ const domHandler = (() => {
                     let activeElement = document.getElementsByClassName(
                         "lists__item lists__item--active"
                     )[0];
-
                     storage
                         .getListById(activeElement.dataset.id)
                         .addTask(textEntered);
-                    reloadListContent(activeElement.dataset.id);
+                    loadListContent(activeElement.dataset.id);
                     newTaskButton.className = "list-content__button";
                 }
             });
@@ -233,15 +232,15 @@ const domHandler = (() => {
         addTaskButtonEventListener();
     };
 
-    const loadPageInitialState = () => {
+    const loadPage = () => {
         loadBasicStructure();
-        storage.addDefaultList();
-        reloadLists();
-        reloadListContent(0);
+        storage.addList("Inbox");
+        loadLists();
+        // loadListContent(0);
     };
 
     return {
-        loadPageInitialState,
+        loadPage,
     };
 })();
 

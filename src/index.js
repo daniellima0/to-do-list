@@ -2,7 +2,9 @@ import "./reset.css";
 import "./index.css";
 import domHandler from "./domHandler";
 
-domHandler.loadPageInitialState();
+console.log(localStorage);
+
+domHandler.loadPage();
 
 // Notes
 // Code to check localStorage state

@@ -1,37 +1,45 @@
 import createList from "./createList";
 
 const storage = (() => {
-    let lists = [];
     let listId = 0;
-
-    const addDefaultList = () => {
-        let defaultList = createList(0, "Inbox");
-        localStorage.setItem(0, JSON.stringify(defaultList));
-        defaultList.addTask("bbbbbbb");
-        lists.push(defaultList);
-        incrementListId();
-    };
 
     const addList = (name) => {
         let newList = createList(listId, name);
         localStorage.setItem(listId, JSON.stringify(newList));
-        lists.push(newList);
+        console.log(localStorage);
         incrementListId();
     };
 
     const removeList = (selectedList) => {
-        lists.forEach((list) => {
-            if (list.id == selectedList.id) {
-                lists.splice(indexOf(selectedList), 0);
-            }
-        });
+        // Remove the list from localStorage
+        localStorage.removeItem(selectedList.id);
     };
 
     const getListById = (listId) => {
-        return lists[listId];
+        let listString = localStorage.getItem(listId);
+        let listData = JSON.parse(listString);
+        let list = createList(listData.id, listData.name);
+        listData.tasks.forEach((taskData) => {
+            list.addTask(taskData.title, taskData.isChecked);
+        });
+        return list;
     };
 
     const getAllLists = () => {
+        let lists = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            let listData = JSON.parse(
+                localStorage.getItem(localStorage.key(i))
+            );
+
+            console.log(listData);
+
+            let list = createList(listData.id, listData.name);
+            listData.tasks.forEach((taskData) => {
+                list.addTask(taskData.title, taskData.isChecked);
+            });
+            lists.push(list);
+        }
         return lists;
     };
 
@@ -40,7 +48,6 @@ const storage = (() => {
     };
 
     return {
-        addDefaultList,
         addList,
         removeList,
         getListById,

@@ -1,17 +1,14 @@
 import createTask from "./createTask";
 
 const createList = (id, name) => {
-    let tasks = [];
+    // let tasks = [];
     let taskId = 0;
 
     const addTask = (taskTitle) => {
         let newTask = createTask(taskId, taskTitle);
         let currentList = JSON.parse(localStorage.getItem(id));
-
-        tasks.push(newTask);
-
+        currentList.tasks.push(newTask);
         localStorage.setItem(id, JSON.stringify(currentList));
-
         incrementTaskId();
     };
 
@@ -24,6 +21,7 @@ const createList = (id, name) => {
     };
 
     const getAllTasks = () => {
+        let tasks = JSON.parse(localStorage.getItem(id)).tasks;
         return tasks;
     };
 
@@ -31,7 +29,7 @@ const createList = (id, name) => {
         taskId += 1;
     };
 
-    return { id, name, tasks, addTask, removeTask, getAllTasks };
+    return { id, name, addTask, removeTask, getAllTasks };
 };
 
 export default createList;
