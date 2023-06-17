@@ -601,17 +601,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const createList = (id, name) => {
-    let tasks = [];
+    // let tasks = [];
     let taskId = 0;
 
     const addTask = (taskTitle) => {
         let newTask = (0,_createTask__WEBPACK_IMPORTED_MODULE_0__["default"])(taskId, taskTitle);
         let currentList = JSON.parse(localStorage.getItem(id));
-
-        tasks.push(newTask);
-
+        currentList.tasks.push(newTask);
         localStorage.setItem(id, JSON.stringify(currentList));
-
         incrementTaskId();
     };
 
@@ -624,6 +621,7 @@ const createList = (id, name) => {
     };
 
     const getAllTasks = () => {
+        let tasks = JSON.parse(localStorage.getItem(id)).tasks;
         return tasks;
     };
 
@@ -631,7 +629,7 @@ const createList = (id, name) => {
         taskId += 1;
     };
 
-    return { id, name, tasks, addTask, removeTask, getAllTasks };
+    return { id, name, addTask, removeTask, getAllTasks };
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (createList);
@@ -721,7 +719,7 @@ const domHandler = (() => {
                     const textEntered = listInput.value;
                     listsItemsElement.removeChild(listInput);
                     _storage__WEBPACK_IMPORTED_MODULE_0__["default"].addList(textEntered);
-                    reloadLists();
+                    loadLists();
                     newListButton.className = "lists__button";
                 }
             });
@@ -766,7 +764,7 @@ const domHandler = (() => {
         });
     };
 
-    const reloadListContent = (listId) => {
+    const loadListContent = (listId) => {
         deleteTasks();
 
         const listContentTitleElement = document.getElementsByClassName(
@@ -817,7 +815,7 @@ const domHandler = (() => {
             });
     };
 
-    const reloadLists = () => {
+    const loadLists = () => {
         deleteLists();
 
         const listsItemsElement =
@@ -876,10 +874,9 @@ const domHandler = (() => {
                     let activeElement = document.getElementsByClassName(
                         "lists__item lists__item--active"
                     )[0];
-
                     _storage__WEBPACK_IMPORTED_MODULE_0__["default"].getListById(activeElement.dataset.id)
                         .addTask(textEntered);
-                    reloadListContent(activeElement.dataset.id);
+                    loadListContent(activeElement.dataset.id);
                     newTaskButton.className = "list-content__button";
                 }
             });
@@ -904,15 +901,15 @@ const domHandler = (() => {
         addTaskButtonEventListener();
     };
 
-    const loadPageInitialState = () => {
+    const loadPage = () => {
         loadBasicStructure();
-        _storage__WEBPACK_IMPORTED_MODULE_0__["default"].addDefaultList();
-        reloadLists();
-        reloadListContent(0);
+        _storage__WEBPACK_IMPORTED_MODULE_0__["default"].addList("Inbox");
+        loadLists();
+        // loadListContent(0);
     };
 
     return {
-        loadPageInitialState,
+        loadPage,
     };
 })();
 
@@ -935,37 +932,45 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const storage = (() => {
-    let lists = [];
     let listId = 0;
-
-    const addDefaultList = () => {
-        let defaultList = (0,_createList__WEBPACK_IMPORTED_MODULE_0__["default"])(0, "Inbox");
-        localStorage.setItem(0, JSON.stringify(defaultList));
-        defaultList.addTask("bbbbbbb");
-        lists.push(defaultList);
-        incrementListId();
-    };
 
     const addList = (name) => {
         let newList = (0,_createList__WEBPACK_IMPORTED_MODULE_0__["default"])(listId, name);
         localStorage.setItem(listId, JSON.stringify(newList));
-        lists.push(newList);
+        console.log(localStorage);
         incrementListId();
     };
 
     const removeList = (selectedList) => {
-        lists.forEach((list) => {
-            if (list.id == selectedList.id) {
-                lists.splice(indexOf(selectedList), 0);
-            }
-        });
+        // Remove the list from localStorage
+        localStorage.removeItem(selectedList.id);
     };
 
     const getListById = (listId) => {
-        return lists[listId];
+        let listString = localStorage.getItem(listId);
+        let listData = JSON.parse(listString);
+        let list = (0,_createList__WEBPACK_IMPORTED_MODULE_0__["default"])(listData.id, listData.name);
+        listData.tasks.forEach((taskData) => {
+            list.addTask(taskData.title, taskData.isChecked);
+        });
+        return list;
     };
 
     const getAllLists = () => {
+        let lists = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            let listData = JSON.parse(
+                localStorage.getItem(localStorage.key(i))
+            );
+
+            console.log(listData);
+
+            let list = (0,_createList__WEBPACK_IMPORTED_MODULE_0__["default"])(listData.id, listData.name);
+            listData.tasks.forEach((taskData) => {
+                list.addTask(taskData.title, taskData.isChecked);
+            });
+            lists.push(list);
+        }
         return lists;
     };
 
@@ -974,7 +979,6 @@ const storage = (() => {
     };
 
     return {
-        addDefaultList,
         addList,
         removeList,
         getListById,
@@ -1126,7 +1130,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-_domHandler__WEBPACK_IMPORTED_MODULE_2__["default"].loadPageInitialState();
+console.log(localStorage);
+
+_domHandler__WEBPACK_IMPORTED_MODULE_2__["default"].loadPage();
 
 // Notes
 // Code to check localStorage state
