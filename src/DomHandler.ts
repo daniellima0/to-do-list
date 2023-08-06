@@ -3,18 +3,17 @@ import listIconPath from "./assets/images/circle.png";
 import "./reset.css";
 import "./index.css";
 import Task from "./Task";
+import List from "./List";
 import Storage from "./Storage";
 
 export default class DomHandler {
-    private storage = new Storage();
+    storage = new Storage();
 
     constructor() {
-        this.addPageBasicStructure();
-        this.addListButtonEventListener();
-        this.addTaskButtonEventListener();
+        this.addPageInitialStructure();
     }
 
-    private addPageBasicStructure(): void {
+    addPageInitialStructure(): void {
         document.body.innerHTML = `
 			<div class="lists">
 				<div class="lists__items"></div>
@@ -26,9 +25,14 @@ export default class DomHandler {
 				<button class="list-content__button">+ New Task</button>
 			</div>
         `;
+
+        this.loadLists();
+        this.loadListContent(0); // Inbox list id is 0
+        this.addListButtonEventListener();
+        this.addTaskButtonEventListener();
     }
 
-    private deleteLists = () => {
+    deleteLists = () => {
         const listsItemsElement =
             document.getElementsByClassName("lists__items")[0];
 
@@ -40,7 +44,7 @@ export default class DomHandler {
         }
     };
 
-    private removeAllActiveStates = () => {
+    removeAllActiveStates = () => {
         const listsItemElements =
             document.getElementsByClassName("lists__item");
 
@@ -50,11 +54,11 @@ export default class DomHandler {
         }
     };
 
-    private addActiveStateTo = (element: Element) => {
+    addActiveStateTo = (element: Element) => {
         element.className = "lists__item lists__item--active";
     };
 
-    private deleteListContent = () => {
+    deleteListContent = () => {
         const title = document.getElementsByClassName("list-content__title")[0];
         if (title) title.textContent = "";
 
@@ -62,7 +66,7 @@ export default class DomHandler {
         if (tasks) tasks.textContent = "";
     };
 
-    private addListButtonEventListener = () => {
+    addListButtonEventListener = () => {
         const listsItemsElement =
             document.getElementsByClassName("lists__items")[0];
 
@@ -86,7 +90,7 @@ export default class DomHandler {
         });
     };
 
-    private deleteTasks = () => {
+    deleteTasks = () => {
         const listContentTasksElement = document.getElementsByClassName(
             "list-content__tasks"
         )[0];
@@ -99,7 +103,7 @@ export default class DomHandler {
         }
     };
 
-    private addCheckboxEventListener = (listId: number, taskId: number) => {
+    addCheckboxEventListener = (listId: number, taskId: number) => {
         const listContentTaskElement = document.querySelector(
             `[data-task-id='${taskId}']`
         );
@@ -111,13 +115,23 @@ export default class DomHandler {
 
         checkbox?.addEventListener("click", () => {
             const lists = this.storage.getAllLists();
-            if (lists) {
-                const tasks = lists[listId].getAllTasks();
-                if (tasks[taskId].isChecked) {
-                    tasks[taskId].isChecked = false;
+
+            let list = lists[listId];
+
+            let tasks: Task[] = [];
+
+            if (list != undefined) {
+                tasks = list.getAllTasks();
+            }
+
+            let task = tasks[taskId];
+
+            if (task != undefined) {
+                if (task.isChecked) {
+                    task.isChecked = false;
                     if (taskText) taskText.style.textDecoration = "none";
                 } else {
-                    tasks[taskId].isChecked = true;
+                    task.isChecked = true;
                     if (taskText)
                         taskText.style.textDecoration = "line-through";
                 }
@@ -125,66 +139,86 @@ export default class DomHandler {
         });
     };
 
-    private loadListContent = (listId: number) => {
+    loadListContent = (listId: number) => {
         this.deleteTasks();
 
         const listContentTitleElement = document.getElementsByClassName(
             "list-content__title"
         )[0];
-        if (listContentTitleElement) {
-            listContentTitleElement.textContent =
-                this.storage.getListById(listId).name;
+
+        let currentList: List | null = null;
+
+        if (listId != undefined) {
+            currentList = this.storage.getListById(listId);
         }
-        const listContentTasksElement = document.getElementsByClassName(
-            "list-content__tasks"
-        )[0];
 
-        this.storage
-            .getListById(listId)
-            .getAllTasks()
-            .forEach((task: Task) => {
-                const newTaskElement = document.createElement("div");
-                newTaskElement.className = "list-content__task";
-                newTaskElement.dataset["taskId"] = task.id.toString();
+        if (listContentTitleElement != undefined && currentList != null) {
+            listContentTitleElement.textContent = currentList?.name;
 
-                const checkbox = document.createElement("input");
-                checkbox.className = "list-content__checkbox";
-                checkbox.type = "checkbox";
+            const listContentTasksElement = document.getElementsByClassName(
+                "list-content__tasks"
+            )[0];
 
-                const taskText = document.createElement("p");
-                taskText.className = "list-content__text";
-                taskText.textContent = task.title;
+            this.storage
+                .getListById(listId)
+                .getAllTasks()
+                .forEach((task) => {
+                    const newTaskElement = document.createElement("div");
+                    newTaskElement.className = "list-content__task";
+                    newTaskElement.dataset["taskId"] = task.id.toString();
 
-                if (task.isChecked) {
-                    checkbox.checked = true;
-                    taskText.style.textDecoration = "line-through";
-                }
+                    const checkbox = document.createElement("input");
+                    checkbox.className = "list-content__checkbox";
+                    checkbox.type = "checkbox";
 
-                const date = document.createElement("div");
-                date.className = "list-content__date";
+                    const taskText = document.createElement("p");
+                    taskText.className = "list-content__text";
+                    taskText.textContent = task.title;
 
-                const dateIcon = document.createElement("img");
-                date.className = "list-content__date-icon";
+                    if (task.isChecked) {
+                        checkbox.checked = true;
+                        taskText.style.textDecoration = "line-through";
+                    }
 
-                const dateText = document.createElement("p");
-                date.className = "list-content__date-text";
+                    const date = document.createElement("div");
+                    date.className = "list-content__date";
 
-                date.append(dateIcon, dateText);
+                    const dateIcon = document.createElement("img");
+                    date.className = "list-content__date-icon";
 
-                newTaskElement.append(checkbox, taskText, date);
-                listContentTasksElement?.append(newTaskElement);
+                    const dateText = document.createElement("p");
+                    date.className = "list-content__date-text";
 
-                this.addCheckboxEventListener(listId, task.id);
-            });
+                    date.append(dateIcon, dateText);
+
+                    newTaskElement.append(checkbox, taskText, date);
+                    listContentTasksElement?.append(newTaskElement);
+
+                    this.addCheckboxEventListener(listId, task.id);
+                });
+        }
     };
 
-    private loadLists = () => {
+    loadLists = () => {
         this.deleteLists();
 
         const listsItemsElement =
             document.getElementsByClassName("lists__items")[0];
 
-        this.storage.getAllLists().forEach((list) => {
+        //! hardcoding lists
+        const hardcodedLists = [
+            {
+                id: "0",
+                name: "Inbox",
+            },
+            {
+                id: "1",
+                name: "Today",
+            },
+        ];
+
+        hardcodedLists.forEach((list) => {
+            //! change this to lists in the storage later
             const listElement = document.createElement("div");
             listElement.className = "lists__item";
             listElement.dataset["id"] = list.id;
@@ -207,6 +241,7 @@ export default class DomHandler {
                 this.removeAllActiveStates();
                 this.addActiveStateTo(listElement);
                 this.deleteListContent();
+
                 if (listElement.dataset["id"]) {
                     this.loadListContent(parseInt(listElement.dataset["id"]));
                 }
@@ -217,7 +252,7 @@ export default class DomHandler {
         });
     };
 
-    private addTaskButtonEventListener = () => {
+    addTaskButtonEventListener = () => {
         const listContentTasksElement = document.getElementsByClassName(
             "list-content__tasks"
         )[0];
@@ -240,13 +275,13 @@ export default class DomHandler {
                         "lists__item lists__item--active"
                     )[0] as HTMLElement;
 
-                    if (activeElement?.dataset["id"]) {
+                    let activeElementId = activeElement.dataset["id"];
+
+                    if (activeElementId != null) {
                         this.storage
-                            .getListById(parseInt(activeElement?.dataset["id"]))
-                            .addTask(textEntered);
-                        this.loadListContent(
-                            parseInt(activeElement?.dataset["id"])
-                        );
+                            .getListById(parseInt(activeElementId))
+                            ?.addTask(textEntered);
+                        this.loadListContent(parseInt(activeElementId));
                     }
 
                     newTaskButton.className = "list-content__button";
