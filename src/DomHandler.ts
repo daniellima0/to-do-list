@@ -296,23 +296,13 @@ export default class DomHandler {
         const listsItemsElement =
             document.getElementsByClassName("lists__items")[0];
 
-        //! hardcoding lists
-        const hardcodedLists = [
-            {
-                id: "0",
-                name: "Inbox",
-            },
-            {
-                id: "1",
-                name: "Today",
-            },
-        ];
+        console.log(this.storage.getAllLists());
 
-        hardcodedLists.forEach((list) => {
+        this.storage.getAllLists().forEach((list) => {
             //! change this to lists in the storage later
             const listElement = document.createElement("div");
             listElement.className = "lists__item";
-            listElement.dataset["id"] = list.id;
+            listElement.dataset["id"] = list.id.toString();
 
             const listIcon = document.createElement("img");
             if (list.name == "Inbox") {

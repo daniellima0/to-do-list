@@ -38,12 +38,18 @@ export default class Storage {
     }
 
     getAllLists(): List[] {
-        // Todo: loop through localStorage and return all lists
         let lists: List[] = [];
 
         (Object.keys(localStorage) as (keyof typeof localStorage)[]).forEach(
             (key) => {
-                lists.push(JSON.parse(localStorage[key]));
+                let returnedString = localStorage.getItem(key.toString());
+                if (returnedString != null) {
+                    let returnedObject = JSON.parse(returnedString);
+                    let currentList = new List(returnedObject.name);
+                    currentList.id = returnedObject.id;
+                    currentList.tasks = returnedObject.tasks;
+                    lists.push(currentList);
+                }
             }
         );
         return lists;

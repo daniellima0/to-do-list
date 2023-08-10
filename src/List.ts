@@ -20,7 +20,6 @@ export default class List {
         let returnedString = localStorage.getItem(this.id.toString());
         if (returnedString != null) {
             let returnedObject = JSON.parse(returnedString);
-            console.log(returnedObject);
             let currentList = new List(returnedObject.name);
             currentList.id = returnedObject.id;
             currentList.tasks = returnedObject.tasks;
@@ -36,7 +35,6 @@ export default class List {
         let returnedString = localStorage.getItem(this.id.toString());
         if (returnedString != null) {
             let returnedObject = JSON.parse(returnedString);
-            console.log(returnedObject);
             let currentList = new List(returnedObject.name);
             currentList.id = returnedObject.id;
             currentList.tasks = returnedObject.tasks;
@@ -71,11 +69,9 @@ export default class List {
     }
 
     setDateOfTask(taskId: number, newDate: string): void {
-        console.log(newDate);
         let returnedString = localStorage.getItem(this.id.toString());
         if (returnedString != null) {
             let returnedObject = JSON.parse(returnedString);
-            console.log(returnedObject);
             let currentList = new List(returnedObject.name);
             currentList.id = returnedObject.id;
             currentList.tasks = returnedObject.tasks;
