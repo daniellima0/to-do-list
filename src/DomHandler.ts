@@ -11,10 +11,10 @@ export default class DomHandler {
     storage = new Storage();
 
     constructor() {
-        this.addPageInitialStructure();
+        this.addPageStaticStructure();
     }
 
-    addPageInitialStructure(): void {
+    addPageStaticStructure(): void {
         document.body.innerHTML = `
 			<div class="lists">
 				<div class="lists__items"></div>
@@ -27,32 +27,108 @@ export default class DomHandler {
 			</div>
         `;
 
+        const newTaskButton = document.getElementsByClassName(
+            "list-content__button"
+        )[0];
+        newTaskButton?.addEventListener("click", this.newTaskButtonCallback);
+
+        const newListButton =
+            document.getElementsByClassName("lists__button")[0];
+        newListButton?.addEventListener("click", this.newListButtonCallback);
+
         this.loadLists();
-        this.loadListContent(0); // Inbox list id is 0
-        this.addListButtonEventListener();
-        this.addTaskButtonEventListener();
-        this.addDeleteButtonEventListener();
+        const inboxListId = 0;
+        this.loadListContent(inboxListId);
     }
 
-    addDeleteButtonEventListener() {
-        const deleteButtonElement = document.getElementsByClassName(
-            "list-content__delete-button"
+    newListButtonCallback = () => {
+        const listsItemsElement =
+            document.getElementsByClassName("lists__items")[0];
+        const newListButton =
+            document.getElementsByClassName("lists__button")[0];
+
+        if (newListButton == null) return;
+
+        newListButton.className += "--hidden";
+        const listInput = document.createElement("input");
+        listInput.className = "lists__input";
+        listInput.addEventListener("keypress", this.listInputCallback);
+        listsItemsElement?.append(listInput);
+    };
+
+    listInputCallback = (event: KeyboardEvent) => {
+        const newListButton = document.getElementsByClassName(
+            "lists__button--hidden"
         )[0];
-        const currentTaskElement = deleteButtonElement?.parentElement;
-        const taskListElement = document.getElementsByClassName(
+        const listsItemsElement =
+            document.getElementsByClassName("lists__items")[0];
+        const listInput = document.getElementsByClassName(
+            "lists__input"
+        )[0] as HTMLInputElement;
+
+        if (newListButton == null || listsItemsElement == null) return;
+
+        if (event.key === "Enter") {
+            const textEntered = listInput.value;
+            listsItemsElement?.removeChild(listInput);
+            this.storage.addList(textEntered);
+            this.loadLists();
+            newListButton.className = "lists__button";
+        }
+    };
+
+    newTaskButtonCallback = () => {
+        const listContentTasksElement = document.getElementsByClassName(
             "list-content__tasks"
         )[0];
-        let activeElement = document.getElementsByClassName(
-            "lists__item lists__item--active"
+        const newTaskButton = document.getElementsByClassName(
+            "list-content__button"
+        )[0];
+
+        if (listContentTasksElement == null || newTaskButton == null) return;
+
+        newTaskButton.className += "--hidden";
+        const taskInput = document.createElement("input");
+        taskInput.className = "list-content__input";
+        taskInput.addEventListener("keypress", this.taskInputCallback);
+        listContentTasksElement?.append(taskInput);
+    };
+
+    taskInputCallback = (event: KeyboardEvent) => {
+        const listContentTasksElement = document.getElementsByClassName(
+            "list-content__tasks"
         )[0] as HTMLElement;
-        deleteButtonElement?.addEventListener("click", () => {
-            if (!currentTaskElement) return;
-            taskListElement?.removeChild(currentTaskElement);
-            this.storage
-                .getListById(Number(activeElement.dataset["id"]))
-                .removeTask(Number(currentTaskElement.dataset["taskId"]));
-        });
-    }
+
+        const newTaskButton = document.getElementsByClassName(
+            "list-content__button--hidden"
+        )[0] as HTMLElement;
+
+        const taskInput = document.getElementsByClassName(
+            "list-content__input"
+        )[0] as HTMLInputElement;
+
+        if (listContentTasksElement == null || taskInput == null) return;
+
+        if (event.key === "Enter") {
+            const textEntered = taskInput.value;
+            listContentTasksElement?.removeChild(taskInput);
+
+            let activeElement = document.getElementsByClassName(
+                "lists__item lists__item--active"
+            )[0] as HTMLElement;
+
+            let activeElementId = activeElement.dataset["id"];
+
+            if (activeElementId != null) {
+                this.storage
+                    .getListById(parseInt(activeElementId))
+                    ?.addTask(textEntered);
+                this.loadListContent(parseInt(activeElementId));
+            }
+
+            newTaskButton.className = "list-content__button";
+        }
+    };
 
     deleteLists = () => {
         const listsItemsElement =
@@ -86,30 +162,6 @@ export default class DomHandler {
 
         const tasks = document.getElementsByClassName("list-content__tasks")[0];
         if (tasks) tasks.textContent = "";
-    };
-
-    addListButtonEventListener = () => {
-        const listsItemsElement =
-            document.getElementsByClassName("lists__items")[0];
-
-        const newListButton =
-            document.getElementsByClassName("lists__button")[0];
-
-        newListButton?.addEventListener("click", () => {
-            newListButton.className += "--hidden";
-            const listInput = document.createElement("input");
-            listInput.className = "lists__input";
-            listInput.addEventListener("keypress", (event) => {
-                if (event.key === "Enter") {
-                    const textEntered = listInput.value;
-                    listsItemsElement?.removeChild(listInput);
-                    this.storage.addList(textEntered);
-                    this.loadLists();
-                    newListButton.className = "lists__button";
-                }
-            });
-            listsItemsElement?.append(listInput);
-        });
     };
 
     deleteTasks = () => {
@@ -209,7 +261,12 @@ export default class DomHandler {
                     const deleteButton = document.createElement("img");
                     deleteButton.className = "list-content__delete-button";
                     deleteButton.src = deleteButtonIconPath;
-                    
+
+                    deleteButton?.addEventListener("click", () => {
+                        if (!newTaskElement) return;
+                        listContentTasksElement?.removeChild(newTaskElement);
+                        this.storage.getListById(listId).removeTask(task.id);
+                    });
 
                     newTaskElement.append(
                         checkbox,
@@ -274,45 +331,6 @@ export default class DomHandler {
 
             listElement.append(listIcon, listText);
             listsItemsElement?.append(listElement);
-        });
-    };
-
-    addTaskButtonEventListener = () => {
-        const listContentTasksElement = document.getElementsByClassName(
-            "list-content__tasks"
-        )[0];
-
-        const newTaskButton = document.getElementsByClassName(
-            "list-content__button"
-        )[0];
-
-        newTaskButton?.addEventListener("click", () => {
-            newTaskButton.className += "--hidden";
-            const taskInput = document.createElement("input");
-            taskInput.className = "list-content__input";
-            taskInput.addEventListener("keypress", (event) => {
-                if (event.key === "Enter") {
-                    const textEntered = taskInput.value;
-                    listContentTasksElement?.removeChild(taskInput);
-
-                    //descobrindo qual elemento tá ativo no momento
-                    let activeElement = document.getElementsByClassName(
-                        "lists__item lists__item--active"
-                    )[0] as HTMLElement;
-
-                    let activeElementId = activeElement.dataset["id"];
-
-                    if (activeElementId != null) {
-                        this.storage
-                            .getListById(parseInt(activeElementId))
-                            ?.addTask(textEntered);
-                        this.loadListContent(parseInt(activeElementId));
-                    }
-
-                    newTaskButton.className = "list-content__button";
-                }
-            });
-            listContentTasksElement?.append(taskInput);
         });
     };
 }
