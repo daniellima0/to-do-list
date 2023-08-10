@@ -33,12 +33,26 @@ export default class List {
     }
 
     removeTask(id: number): void {
-        // Todo: check if a task with this id exists, if not throw an error
-        this.tasks.forEach((task) => {
-            if (task.id === id) {
-                this.tasks.splice(this.tasks.indexOf(task), 1);
-            }
-        });
+        let returnedString = localStorage.getItem(this.id.toString());
+        if (returnedString != null) {
+            let returnedObject = JSON.parse(returnedString);
+            console.log(returnedObject);
+            let currentList = new List(returnedObject.name);
+            currentList.id = returnedObject.id;
+            currentList.tasks = returnedObject.tasks;
+            currentList.tasks.forEach((task) => {
+                if (task.id == id) {
+                    currentList.tasks.splice(
+                        currentList.tasks.indexOf(task),
+                        1
+                    );
+                }
+            });
+            localStorage.setItem(
+                this.id.toString(),
+                JSON.stringify(currentList)
+            );
+        }
     }
 
     toggleCheckOfTask(taskId: number): void {

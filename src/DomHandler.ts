@@ -1,5 +1,6 @@
 import inboxIconPath from "./assets/images/inbox.png";
 import listIconPath from "./assets/images/circle.png";
+import deleteButtonIconPath from "./assets/images/trash-can.svg";
 import "./reset.css";
 import "./index.css";
 import Task from "./Task";
@@ -30,6 +31,27 @@ export default class DomHandler {
         this.loadListContent(0); // Inbox list id is 0
         this.addListButtonEventListener();
         this.addTaskButtonEventListener();
+        this.addDeleteButtonEventListener();
+    }
+
+    addDeleteButtonEventListener() {
+        const deleteButtonElement = document.getElementsByClassName(
+            "list-content__delete-button"
+        )[0];
+        const currentTaskElement = deleteButtonElement?.parentElement;
+        const taskListElement = document.getElementsByClassName(
+            "list-content__tasks"
+        )[0];
+        let activeElement = document.getElementsByClassName(
+            "lists__item lists__item--active"
+        )[0] as HTMLElement;
+        deleteButtonElement?.addEventListener("click", () => {
+            if (!currentTaskElement) return;
+            taskListElement?.removeChild(currentTaskElement);
+            this.storage
+                .getListById(Number(activeElement.dataset["id"]))
+                .removeTask(Number(currentTaskElement.dataset["taskId"]));
+        });
     }
 
     deleteLists = () => {
@@ -180,18 +202,21 @@ export default class DomHandler {
                         taskText.style.textDecoration = "line-through";
                     }
 
-                    const date = document.createElement("div");
+                    const date = document.createElement("input");
+                    date.type = "date";
                     date.className = "list-content__date";
 
-                    const dateIcon = document.createElement("img");
-                    date.className = "list-content__date-icon";
+                    const deleteButton = document.createElement("img");
+                    deleteButton.className = "list-content__delete-button";
+                    deleteButton.src = deleteButtonIconPath;
+                    
 
-                    const dateText = document.createElement("p");
-                    date.className = "list-content__date-text";
-
-                    date.append(dateIcon, dateText);
-
-                    newTaskElement.append(checkbox, taskText, date);
+                    newTaskElement.append(
+                        checkbox,
+                        taskText,
+                        date,
+                        deleteButton
+                    );
                     listContentTasksElement?.append(newTaskElement);
 
                     this.addCheckboxEventListener(listId, task.id);
