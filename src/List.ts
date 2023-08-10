@@ -32,7 +32,7 @@ export default class List {
         }
     }
 
-    removeTask(id: number): void {
+    removeTask(taskId: number): void {
         let returnedString = localStorage.getItem(this.id.toString());
         if (returnedString != null) {
             let returnedObject = JSON.parse(returnedString);
@@ -41,7 +41,7 @@ export default class List {
             currentList.id = returnedObject.id;
             currentList.tasks = returnedObject.tasks;
             currentList.tasks.forEach((task) => {
-                if (task.id == id) {
+                if (task.id == taskId) {
                     currentList.tasks.splice(
                         currentList.tasks.indexOf(task),
                         1
@@ -67,6 +67,27 @@ export default class List {
 
         if (task != undefined) {
             task.isChecked = !task.isChecked;
+        }
+    }
+
+    setDateOfTask(taskId: number, newDate: string): void {
+        console.log(newDate);
+        let returnedString = localStorage.getItem(this.id.toString());
+        if (returnedString != null) {
+            let returnedObject = JSON.parse(returnedString);
+            console.log(returnedObject);
+            let currentList = new List(returnedObject.name);
+            currentList.id = returnedObject.id;
+            currentList.tasks = returnedObject.tasks;
+            currentList.tasks.forEach((task) => {
+                if (task.id == taskId) {
+                    task.date = newDate;
+                }
+            });
+            localStorage.setItem(
+                this.id.toString(),
+                JSON.stringify(currentList)
+            );
         }
     }
 

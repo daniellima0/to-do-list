@@ -257,6 +257,15 @@ export default class DomHandler {
                     const date = document.createElement("input");
                     date.type = "date";
                     date.className = "list-content__date";
+                    if (task.date != null) {
+                        date.value = task.date;
+                    }
+
+                    date.addEventListener("change", () => {
+                        this.storage
+                            .getListById(listId)
+                            .setDateOfTask(task.id, date.value);
+                    });
 
                     const deleteButton = document.createElement("img");
                     deleteButton.className = "list-content__delete-button";

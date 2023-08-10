@@ -1,11 +1,9 @@
-import format from "date-fns/format";
-
 export default class Task {
     id: number;
     title: string;
     listId: number;
     isChecked: boolean;
-    date: string = format(new Date(), "dd/MM/yyyy");
+    date?: string | null = null;
 
     constructor(title: string, listId: number, isChecked: boolean = false) {
         this.id = this.generateId();
