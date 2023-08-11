@@ -1,2 +1,13 @@
-# to-do-list
-A To Do List app built with HTML, CSS and Javascript
+# To Do List
+
+## Introduction
+
+A to do list web app built with plain TypeScript, HTML and CSS along with Webpack and is part of [The Odin Project](https://www.theodinproject.com/).
+
+## Screenshot
+
+![Project screenshot](./src/assets/screenshots/screenshot.png "Project screenshot")
+
+## Visualize WebPage
+
+This project is hosted on my GitHub Pages, and you can access it [in here](https://daniellima0.github.io/to-do-list/).
